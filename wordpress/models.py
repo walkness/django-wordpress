@@ -59,6 +59,16 @@ class WordPressManager(models.Manager):
 # Base models
 #
 
+class MetaQuerySet(models.QuerySet):
+
+    def as_dict(self):
+        mapped = {}
+        for meta in self.all():
+            mapped[meta.key] = meta.value
+        return mapped
+
+
+
 class WordPressModel(models.Model):
     """
     Base model for all WordPress objects.
@@ -154,6 +164,8 @@ class UserMeta(WordPressModel):
     user = models.ForeignKey(User, related_name="meta", db_column='user_id')
     key = models.CharField(max_length=255, db_column='meta_key')
     value = models.TextField(db_column='meta_value')
+
+    objects = MetaQuerySet.as_manager()
 
     class Meta:
         db_table = '%s_usermeta' % TABLE_PREFIX
@@ -405,6 +417,8 @@ class PostMeta(WordPressModel):
     post = models.ForeignKey(Post, related_name='meta', db_column='post_id')
     key = models.CharField(max_length=255, db_column='meta_key')
     value = models.TextField(db_column='meta_value')
+
+    objects = MetaQuerySet.as_manager()
 
     class Meta:
         db_table = '%s_postmeta' % TABLE_PREFIX
