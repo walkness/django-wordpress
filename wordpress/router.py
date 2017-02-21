@@ -20,8 +20,11 @@ class WordpressRouter(object):
         return self.db_for_read(model, **hints)
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
-        if WP_READ_ONLY:
-            return False
+        if app_label == 'wordpress' or db == 'wordpress':
+            if WP_READ_ONLY:
+                return False
+
         if app_label == 'wordpress':
             return db == 'wordpress'
+
         return None
