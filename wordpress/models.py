@@ -1,5 +1,6 @@
 import collections
 import datetime
+import pytz
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -379,6 +380,12 @@ class Post(WordPressModel):
     def parent(self):
         if self.parent_id:
             return Post.objects.get(pk=self.parent_id)
+
+    @property
+    def post_date_utc(self):
+        tz = pytz.timezone(getattr(settings, 'WP_TIME_ZONE', 'UTC'))
+        correct = self.post_date.replace(tzinfo=tz)
+        return correct.astimezone(pytz.UTC)
 
     @parent.setter
     def parent(self, post):
