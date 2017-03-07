@@ -84,6 +84,9 @@ class WordPressModel(models.Model):
         abstract = True
         managed = False
 
+    def __str__(self):
+        return self.__unicode__()
+
     def _get_object(self, model, obj_id):
         try:
             return model.objects.get(pk=obj_id)
