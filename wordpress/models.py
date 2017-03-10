@@ -263,8 +263,8 @@ class PostManager(WordPressManager):
 
 class TermTaxonomyRelationship(WordPressModel):
 
-    object = models.ForeignKey('Post')
-    term_taxonomy = models.ForeignKey('Taxonomy', related_name='relationships', db_column='term_taxonomy_id')
+    object = models.ForeignKey('Post', primary_key=True)
+    term_taxonomy = models.ForeignKey('Taxonomy', related_name='relationships', db_column='term_taxonomy_id', primary_key=True)
     order = models.IntegerField(db_column='term_order')
 
     class Meta:
@@ -390,6 +390,12 @@ class Post(WordPressModel):
         correct = self.post_date.replace(tzinfo=tz)
         return correct.astimezone(pytz.UTC)
 
+    @property
+    def modified_utc(self):
+        tz = pytz.timezone(getattr(settings, 'WP_TIME_ZONE', 'UTC'))
+        correct = self.modified.replace(tzinfo=tz)
+        return correct.astimezone(pytz.UTC)
+
     @parent.setter
     def parent(self, post):
         if post.pk is None:
@@ -490,6 +496,10 @@ class Comment(WordPressModel):
     def is_spam(self):
         return self.approved == 'spam'
 
+    @property
+    def post_date_utc(self):
+        return self.post_date.replace(tzinfo=pytz.UTC)
+
 
 class Term(WordPressModel):
 
@@ -534,7 +544,7 @@ class Taxonomy(WordPressModel):
         return u"%s: %s" % (self.name, term)
 
     def parent(self):
-        return self._get_object(Taxonomy, self.parent_id)
+        return self.__class__.objects.filter(term_id=self.parent_id).first()
 
     #def term(self):
     #    return self._get_object(Term, self.term_id)
