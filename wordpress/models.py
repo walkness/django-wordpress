@@ -387,13 +387,13 @@ class Post(WordPressModel):
     @property
     def post_date_utc(self):
         tz = pytz.timezone(getattr(settings, 'WP_TIME_ZONE', 'UTC'))
-        correct = tz.localize(self.post_date)
+        correct = tz.localize(self.post_date.replace(tzinfo=None))
         return correct.astimezone(pytz.UTC)
 
     @property
     def modified_utc(self):
         tz = pytz.timezone(getattr(settings, 'WP_TIME_ZONE', 'UTC'))
-        correct = tz.localize(self.modified)
+        correct = tz.localize(self.modified.replace(tzinfo=None))
         return correct.astimezone(pytz.UTC)
 
     @parent.setter
@@ -498,7 +498,7 @@ class Comment(WordPressModel):
 
     @property
     def post_date_utc(self):
-        return pytz.UTC.localize(self.post_date)
+        return pytz.UTC.localize(self.post_date.replace(tzinfo=None))
 
 
 class Term(WordPressModel):
